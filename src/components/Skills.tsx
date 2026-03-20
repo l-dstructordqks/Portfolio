@@ -1,6 +1,4 @@
 import React from 'react';
-import { ProjectCard } from './ProjectCard';
-import Globe from '../assets/svg/globe.svg?react';
 import Html from '../assets/svg/skills/html.svg?react';
 import Css from '../assets/svg/skills/css.svg?react';
 import ReactJs from '../assets/svg/skills/react.svg?react';
