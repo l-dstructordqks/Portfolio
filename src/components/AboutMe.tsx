@@ -6,7 +6,7 @@ export const AboutMe:React.FC = () => {
   return (
     <div className="flex-1 py-4 px-6 text-[13px] leading-[1.9]">
         
-        <div><span className="text-[#6a9955]">//  AboutMe.tsx — Conoce un poco más sobre mí</span></div>
+        <div><span className="text-syn-comment">//  AboutMe.tsx — Conoce un poco más sobre mí</span></div>
         
         <div>&nbsp;</div>
         <div><span className="text-syn-keyword">interface</span> <span className="text-syn-type">Developer</span> <span className="text-syn-punct">{'{'}</span></div>

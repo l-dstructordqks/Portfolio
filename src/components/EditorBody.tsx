@@ -74,7 +74,7 @@ export const EditorBody:React.FC<EditorBodyTabs> = ({
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden">
 
-        <div className="h-8.75 bg-vsc-surface flex items-end border-b border-vsc-bg overflow-x-auto [&::-webkit-scrollbar]:h-[4px] 
+        <div className="h-8.75 bg-vsc-surface flex items-end border-b border-vsc-bg overflow-x-auto [&::-webkit-scrollbar]:h-1 
             [&::-webkit-scrollbar-thumb]:bg-[#424242] 
             [&::-webkit-scrollbar-track]:bg-transparent
             [&::-webkit-scrollbar-button]:hidden shrink-0">
@@ -122,7 +122,7 @@ export const EditorBody:React.FC<EditorBodyTabs> = ({
         </div>
 
         
-        <div className="flex-1 overflow-y-auto bg-vsc-bg flex [&::-webkit-scrollbar]:w-[4px] 
+        <div className="flex-1 overflow-y-auto bg-vsc-bg flex [&::-webkit-scrollbar]:w-1 
             [&::-webkit-scrollbar-thumb]:bg-[#424242] 
             [&::-webkit-scrollbar-track]:bg-transparent
             [&::-webkit-scrollbar-button]:hidden font-jetbrains">

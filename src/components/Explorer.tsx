@@ -1,9 +1,8 @@
-import React, { useEffect, useState, type Dispatch, type SetStateAction } from 'react'
+import React, { useState, type Dispatch, type SetStateAction } from 'react'
 import SrcOpen from '../assets/svg/src_open.svg?react';
 import Src from '../assets/svg/src_close.svg?react';
 import ChevronDown from '../assets/svg/chevron_down.svg?react';
 import ChevronRight from '../assets/svg/chevron_right.svg?react';
-import Type from '../assets/svg/typescript.svg?react';
 import Backend from '../assets/svg/backend.svg?react';
 import BackendOpen from '../assets/svg/backend_open.svg?react';
 import Frontend from '../assets/svg/frontend.svg?react';
@@ -27,7 +26,16 @@ interface ExplorerProps {
     setActiveSource: Dispatch<SetStateAction<string>>;
 }
 
-export const ExplorerBar:React.FC<ExplorerProps> = ({active, tabs, setTabs,  setActiveSource }) => {
+type FolderState = {
+    portfolio: boolean;
+    backend: boolean;
+    api: boolean;
+    frontend: boolean;
+    src: boolean;
+    components: boolean;
+};
+
+export const ExplorerBar:React.FC<ExplorerProps> = ({active, setTabs,  setActiveSource }) => {
     const ROUTES = {
         ReadMe: '/',
         Projects: '/projects',
@@ -36,9 +44,9 @@ export const ExplorerBar:React.FC<ExplorerProps> = ({active, tabs, setTabs,  set
         Skills: '/skills',
         Contact: '/contact',
     }
-    const [activeFile, setActiveFile] = useState('ReadMe');
+
     //const [tabs, setTabs] = useState(['ReadMe']);
-    const [folder, setFolder] = useState({
+    const [folder, setFolder] = useState<FolderState>({
         portfolio: true,
         backend: true,
         api: true,
@@ -47,19 +55,14 @@ export const ExplorerBar:React.FC<ExplorerProps> = ({active, tabs, setTabs,  set
         components: true,
     });
 
+    const [activeFolder, setActiveFolder] = useState<keyof FolderState | null>(null);
+
     const navigate = useNavigate();
     const location = useLocation();
 
-    useEffect(() => {
-        // Buscamos en el objeto ROUTES cuál coincide con la URL actual
-        const currentFile = Object.keys(ROUTES).find(
-            (key) => ROUTES[key as keyof typeof ROUTES] === location.pathname
-        );
-
-        if (currentFile) {
-            setActiveFile(currentFile);
-        }
-    }, [location.pathname]);
+    const activeFile = (Object.keys(ROUTES) as Array<keyof typeof ROUTES>).find(
+        (key) => ROUTES[key] === location.pathname
+    ) ?? 'ReadMe';
 
     /*const toggleFile = (item:string) => {
         if(activeFile == item) {
@@ -71,41 +74,33 @@ export const ExplorerBar:React.FC<ExplorerProps> = ({active, tabs, setTabs,  set
         addTab(item);
     }*/
 
-    const toggleFile = (item: string) => {
-        // Si no es una ruta válida (es una carpeta), solo marcamos el highlight
-        if (!ROUTES[item as keyof typeof ROUTES]) {
-            setActiveFile(item);
-            return;
-        }
-        
-        setActiveFile(item);
+    const toggleFile = (item: keyof typeof ROUTES) => {
         addTab(item);
     }
 
-    const toggleFolder = (name:string) => {
-        setActiveFile(name);
-        setFolder({
-            ...folder,                // 1. Copia el estado actual (mantiene las demás secciones)
-            [name]: !folder[name], // 2. Cambia solo la propiedad que recibes por parámetro
-        });
+    const toggleFolder = (name: keyof FolderState) => {
+        setActiveFolder(name);
+
+        setFolder(prev => ({
+            ...prev,
+            [name]: !prev[name],
+        }));
     }
 
-    const addTab = (file:string) => {
-        const route = ROUTES[file as keyof typeof ROUTES];
+    const addTab = (file: keyof typeof ROUTES) => {
+        const route = ROUTES[file];
         if (!route) return;
 
-        if(!tabs.includes(file)) {
-            setTabs([...tabs, file]);
-        }
+        setTabs(prev => prev.includes(file) ? prev : [...prev, file]);
         setActiveSource(file);
-        navigate(route);     
+        navigate(route);
     }
 
   return (
     <div className={`${active ? 'w-55' : 'w-0'} flex flex-col overflow-hidden border-r transition-[width] duration-200 bg-vsc-surface border-vsc-bg`} id="sidebar">
         <div className="pt-2.5 px-3 pb-1.5 text-[11px] font-semibold uppercase tracking-widest text-[#bbbbbb]">Explorer</div>
         <div className="flex-1 overflow-y-auto">
-            <div className={`flex items-center gap-1.5 px-3 py-0.75 text-[13px] text-white-a cursor-pointer ${activeFile == 'portfolio' ? 'bg-vsc-active' : 'hover:bg-vsc-hover' }`} onClick={() => toggleFolder('portfolio')}>
+            <div className={`flex items-center gap-1.5 px-3 py-0.75 text-[13px] text-white-a cursor-pointer ${activeFolder == 'portfolio' ? 'bg-vsc-active' : 'hover:bg-vsc-hover' }`} onClick={() => toggleFolder('portfolio')}>
                 <span className="w-3 items-center">
                     {folder.portfolio ? <ChevronDown /> : <ChevronRight /> }
                 </span> 
@@ -114,7 +109,7 @@ export const ExplorerBar:React.FC<ExplorerProps> = ({active, tabs, setTabs,  set
 
             {folder.portfolio && 
                 <div className='text-[13px] text-white-a'>
-                    <div className={`px-3 pl-6 flex items-center py-0.75 cursor-pointer ${activeFile == 'backend' ? 'bg-vsc-active' : 'hover:bg-vsc-hover' } gap-1`} onClick={() => toggleFolder('backend')}>
+                    <div className={`px-3 pl-6 flex items-center py-0.75 cursor-pointer ${activeFolder == 'backend' ? 'bg-vsc-active' : 'hover:bg-vsc-hover' } gap-1`} onClick={() => toggleFolder('backend')}>
                         <span className="flex gap-1 items-center">
                         {folder.backend ? <ChevronDown /> : <ChevronRight /> }
                         {folder.backend ? <BackendOpen className="h-4.25" /> : <Backend className="h-4.25" />}
@@ -124,7 +119,7 @@ export const ExplorerBar:React.FC<ExplorerProps> = ({active, tabs, setTabs,  set
 
                     {folder.backend && 
                         <>
-                        <div className={`px-3 pl-9 flex items-center py-0.75 text-[13px] cursor-pointer hover:bg-vsc-hover gap-1  ${activeFile == 'api' ? 'bg-vsc-active' : 'hover:bg-vsc-hover' }`} /*style="padding-left:24px"*/onClick={() => toggleFolder('api')}>
+                        <div className={`px-3 pl-9 flex items-center py-0.75 text-[13px] cursor-pointer hover:bg-vsc-hover gap-1  ${activeFolder == 'api' ? 'bg-vsc-active' : 'hover:bg-vsc-hover' }`} /*style="padding-left:24px"*/onClick={() => toggleFolder('api')}>
                             <span className="flex gap-1 items-center">
                             {folder.api ? <ChevronDown /> : <ChevronRight /> }
                             {folder.api ? <FolderOpen className="h-4.25" /> : <Folder className="h-4.25" /> }
@@ -148,7 +143,7 @@ export const ExplorerBar:React.FC<ExplorerProps> = ({active, tabs, setTabs,  set
                     }
 
                     {/* FRONTEND FOLDER */}
-                    <div className={`px-3 pl-6 flex items-center py-0.75 cursor-pointer gap-1 ${activeFile == 'frontend'  ? 'bg-vsc-active' : 'hover:bg-vsc-hover' }`} onClick={() => toggleFolder('frontend')}>
+                    <div className={`px-3 pl-6 flex items-center py-0.75 cursor-pointer gap-1 ${activeFolder == 'frontend'  ? 'bg-vsc-active' : 'hover:bg-vsc-hover' }`} onClick={() => toggleFolder('frontend')}>
                         <span className="flex gap-1 items-center">
                         {folder.frontend ? <ChevronDown /> : <ChevronRight /> }
                         {folder.frontend ? <FrontendOpen className="h-4.25" /> : <Frontend className="h-4.25" />}
@@ -157,7 +152,7 @@ export const ExplorerBar:React.FC<ExplorerProps> = ({active, tabs, setTabs,  set
                     </div>
                     {folder.frontend && 
                         <>
-                            <div className={`px-3 pl-9 flex items-center py-0.75 text-[13px] cursor-pointer gap-1  ${activeFile == 'src'  ? 'bg-vsc-active' : 'hover:bg-vsc-hover' }`} onClick={() => toggleFolder('src')}>
+                            <div className={`px-3 pl-9 flex items-center py-0.75 text-[13px] cursor-pointer gap-1  ${activeFolder == 'src'  ? 'bg-vsc-active' : 'hover:bg-vsc-hover' }`} onClick={() => toggleFolder('src')}>
                                 <span className="flex gap-1 items-center">
                                     {folder.src ? <ChevronDown /> : <ChevronRight /> }
                                     {folder.src ? <SrcOpen className="h-4.25" /> : <Src className="h-4.25" /> }
@@ -167,7 +162,7 @@ export const ExplorerBar:React.FC<ExplorerProps> = ({active, tabs, setTabs,  set
                             
                             {folder.src &&
                                 <>
-                                    <div className={`px-3 pl-12 flex items-center py-0.75 cursor-pointer gap-1 ${activeFile == 'components'  ? 'bg-vsc-active' : 'hover:bg-vsc-hover' }`} onClick={() => toggleFolder('components')}>
+                                    <div className={`px-3 pl-12 flex items-center py-0.75 cursor-pointer gap-1 ${activeFolder == 'components'  ? 'bg-vsc-active' : 'hover:bg-vsc-hover' }`} onClick={() => toggleFolder('components')}>
                                         <span className="flex gap-1 items-center">
                                             {folder.components ? <ChevronDown /> : <ChevronRight /> }
                                             {folder.components ? <ComponentsOpen className="h-4 w-4"/> : <Components className="h-4 w-4"/> }
